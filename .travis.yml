@@ -1,0 +1,13 @@
+language: java
+after_success:
+- bash <(curl -s https://codecov.io/bash)
+deploy:
+  provider: releases
+  api_key:
+    secure: osQ2qpw+Alz8+/bA3/qJD9hdhSGzX21vRRQkETsEbW7ZWPUeoXKFXYM1teMDBoMrBxsbQMeAvmgVSuZQ8Hl8/ozUx2xImm8GVi86ZVhihuB6OG49jYw3dIPiCjC3gqc4HlKoiNTPSWJYUgCtEtUB4PnUACWQ7Zsh2z2e11YjscH4z0oQiZYcWVEnGyf62JdgX68UgnUEev1Hgyf4+ySiQlfNzc9mvL48km4dWWsTJKv6lDipMZC7CyMivK7z362/uE1pJvuczTqsJX7o676ap0MDYO7M1AqIQski1nL02bgcVuevAkjsWFFbTMRou+Ag09XE7vZG40h5ows/wu7bR4P7nTqicvi+Cp3SgNfjWsklMEv6JkDOP/L7ErEddWjyt3aTOU9Xu5QIR6cnb+pdRia9Zp4N59su3vxFleEABIYc3DokkhHC+AMzh8SBLNwK1Z1hcxUnRtM8Q+PaWcdkSN19i8W/Mm25wCqxZgR9TbBU4wDRt2jZKkMItt6KaNbF/v9dkKHeyTEgWrLfeKYPAFyhJ/p02YjD/4fx9vJjTbrtOqLz2rxKO1GU/LWnxA4stsFSz9ybobPkLuqup9y1/vhMwrAqfqCpgv67k7ZcZrM+MNLIhZ9QFJJiIZCnqOK89fmBTHWJ5LzsORVCVqoD7/v4kUiJdF8YZ3798KUAzu8=
+  file: target/*.jar
+  file_glob: true
+  skip_cleanup: true
+  on:
+    repo: kayukin/request-bot
+    tags: true
