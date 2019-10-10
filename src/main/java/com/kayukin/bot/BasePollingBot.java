@@ -35,14 +35,13 @@ public abstract class BasePollingBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         log.debug("Received update {}", update);
         try {
-            String response = handleUpdate(update);
-            SendMessage sendMessage = new SendMessage()
-                    .setChatId(update.getMessage().getChatId())
-                    .setText(response);
-            execute(sendMessage);
+            SendMessage response = handleUpdate(update);
+            response.setChatId(update.getMessage().getChatId());
+            execute(response);
         } catch (Exception e) {
             SendMessage sendMessage = new SendMessage()
                     .setChatId(update.getMessage().getChatId())
+                    .setReplyToMessageId(update.getMessage().getMessageId())
                     .setText(getMessage(e));
             execute(sendMessage);
         }
@@ -58,7 +57,7 @@ public abstract class BasePollingBot extends TelegramLongPollingBot {
         return token;
     }
 
-    public abstract String handleUpdate(Update update);
+    public abstract SendMessage handleUpdate(Update update);
 
     private String getMessage(Exception ex) {
         return Optional.ofNullable(ex.getMessage())

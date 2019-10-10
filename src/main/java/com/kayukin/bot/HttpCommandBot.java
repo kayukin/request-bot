@@ -3,8 +3,12 @@ package com.kayukin.bot;
 import com.kayukin.model.Request;
 import com.kayukin.service.RequestExecutionService;
 import lombok.extern.slf4j.Slf4j;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -26,15 +30,25 @@ public class HttpCommandBot extends BasePollingBot {
     }
 
     @Override
-    public String handleUpdate(Update update) {
+    public SendMessage handleUpdate(Update update) {
         if (!isAuthorized(update)) {
-            return "You are not authorized";
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setText("You are not authorized");
+            return sendMessage;
         }
+        if (update.getMessage().isCommand() && update.getMessage().getText().equals("/start")) {
+            SendMessage sendMessage = keyboardMessage();
+            sendMessage.setText("Started");
+            return sendMessage;
+        }
+        SendMessage sendMessage = new SendMessage();
         String message = stripSlash(update.getMessage().getText());
         Request request = Optional.ofNullable(requestMap.get(message))
                 .orElseThrow(() -> new IllegalArgumentException("Unknown command: " + message));
         requestExecutionService.execute(request);
-        return request.getSuccessResponse();
+        sendMessage.setText(request.getSuccessResponse());
+        sendMessage.setReplyToMessageId(update.getMessage().getMessageId());
+        return sendMessage;
     }
 
     private String stripSlash(String message) {
@@ -46,5 +60,20 @@ public class HttpCommandBot extends BasePollingBot {
         return allowedUsers.contains(userId);
     }
 
+    private SendMessage keyboardMessage() {
 
+        ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
+        markup.setSelective(true);
+        markup.setResizeKeyboard(true);
+        markup.setOneTimeKeyboard(false);
+
+        KeyboardRow row = new KeyboardRow();
+        requestMap.keySet().forEach(row::add);
+        markup.setKeyboard(List.of(row));
+
+        SendMessage message = new SendMessage();
+        message.enableMarkdown(true);
+        message.setReplyMarkup(markup);
+        return message;
+    }
 }
